@@ -41,6 +41,7 @@ adj_close = adj_close.fillna(method='ffill')
 # Get the MSFT timeseries. This now returns a Pandas Series object indexed by date.
 msft = adj_close.ix[:, 'MSFT']
 aapl = adj_close.ix[:, 'AAPL']
+
 # Calculate the 20 and 100 days moving averages of the closing prices
 short_rolling_msft = msft.rolling(window=20).mean()
 long_rolling_msft = msft.rolling(window=100).mean()
