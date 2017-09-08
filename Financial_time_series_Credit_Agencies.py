@@ -15,25 +15,34 @@ Created on Thu Apr  6 15:51:45 2017
 from pandas_datareader import data
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
+from datetime import datetime, timedelta
 
 # Define the instruments to download. We would like to see Apple, Microsoft and the S&P500 index.
-tickers = ['EFX']
+tickers = ['EFX','TRU','EXPN']
 
 # Define which online source one should use
-data_source = 'yahoo'
+data_source = 'google'
 
-# We would like all available data from 01/01/2000 until 2017-04-05.
-start_date = '2017-01-01'
-end_date = '2017-09-08'
+# We would like all available data from 30 days until current system date.
+end = time.strftime("%Y-%m-%d")
+end = datetime.strptime(end, "%Y-%m-%d") #string to date
+start = end - timedelta(days=30) 
+start_date = start.strftime("%Y-%m-%d")
+end_date = end.strftime("%Y-%m-%d")
 
 # User pandas_reader.data.DataReader to load the desired data. As simple as that.
 panel_data = data.DataReader(tickers, data_source, start_date, end_date)
 
 # Getting just the adjusted closing prices. This will return a Pandas DataFrame
 # The index in this DataFrame is the major index of the panel_data.
-adj_close = panel_data.ix['Adj Close']
+prices = panel_data.ix['Close']
+adj_close = prices
+adj_close = adj_close.pct_change()
+adj_close = adj_close.fillna(0)
 
-# Getting all weekdays between 01/01/2000 and 2017/04/05.
+
+# Getting all weekdays between 01/01/2000 and 2017/09/08.
 all_weekdays = pd.date_range(start=start_date, end=end_date, freq='B')
 
 # How do we align the existing prices in adj_close with our new set of dates?
@@ -47,18 +56,21 @@ adj_close = adj_close.fillna(method='ffill')
 
 # Get the EFX timeseries. This now returns a Pandas Series object indexed by date.
 EFX = adj_close.ix[:, 'EFX']
+TRU = adj_close.ix[:, 'TRU']
+EXPN = adj_close.ix[:, 'EXPN']
 
 
-# Calculate the 20 and 100 days moving averages of the closing prices
-short_rolling_EFX = EFX.rolling(window=20).mean()
-long_rolling_EFX = EFX.rolling(window=100).mean()
+
+
 
 # Plot everything by leveraging the very powerful matplotlib package
 fig = plt.figure()
 plt.xticks(rotation=70)
 ax = fig.add_subplot(1,1,1)
-ax.plot(EFX.index, EFX, label='EFX')
-ax.plot(short_rolling_EFX.index, short_rolling_EFX, label='20 days rolling')
+ax.plot(EFX.index, EFX, label='Equifax')
+ax.plot(TRU.index, TRU, label='Transunion')
+ax.plot(EXPN.index, EXPN, label='Experian')
+ax.set_title("Stock Prices Percent Change for Credit Agenencies")
 ax.set_xlabel('Date')
-ax.set_ylabel('Adjusted closing price ($)')
+ax.set_ylabel('Adjusted closing price change (%)')
 ax.legend()
