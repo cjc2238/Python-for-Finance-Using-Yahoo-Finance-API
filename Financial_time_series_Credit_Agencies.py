@@ -17,6 +17,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import time
 from datetime import datetime, timedelta
+from pylab import figure, axes, pie, title, show
+
 
 # Define the instruments to download. We would like to see Apple, Microsoft and the S&P500 index.
 tickers = ['EFX','TRU','EXPN']
@@ -74,3 +76,5 @@ ax.set_title("Stock Prices Percent Change for Credit Agenencies")
 ax.set_xlabel('Date')
 ax.set_ylabel('Adjusted closing price change (%)')
 ax.legend()
+fig.savefig('credit.pdf', bbox_inches='tight')
+
